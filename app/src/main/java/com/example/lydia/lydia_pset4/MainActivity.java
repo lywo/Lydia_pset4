@@ -33,9 +33,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        TodoManager.init(this);
+        myToDoManager = TodoManager.getInstance();
+        toDoLists = myToDoManager.getObject();
 
-        myToDoManager.getInstance().setObject(new TodoManager());
-        toDoLists = myToDoManager.getInstance().getObject();
+        //myToDoManager = myToDoManager.getInstance().setObject(new TodoManager());
+
 //        myToDoManager = new TodoManager();
 //        myToDoManager = TodoManager.getInstance();
         // Object object = SingletonObject.getInstance().getObject();

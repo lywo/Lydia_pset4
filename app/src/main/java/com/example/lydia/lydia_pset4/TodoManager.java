@@ -1,5 +1,7 @@
 package com.example.lydia.lydia_pset4;
 
+import android.content.Context;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
@@ -24,16 +26,23 @@ public class TodoManager {
         return myInstance;
     }
 
+    private static Context context;
+    public static void init(Context currentContext){
+        context = currentContext.getApplicationContext();
+    }
+
+
     public TodoItem readTodos () {
         return toDoItem;
     }
 
-    public void setObject (TodoManager myInstance){
+    public TodoManager setObject (TodoManager myInstance){
         this.myInstance = myInstance;
+        return myInstance;
     }
 
     public ArrayList<TodoList> getObject() {
-        return toDoLists;
+        return this.toDoLists;
     }
 
     public void writeToDos(String newItem, TodoList currentList){
