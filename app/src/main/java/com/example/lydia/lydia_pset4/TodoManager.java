@@ -7,29 +7,55 @@ import java.util.ArrayList;
  * Created by Lydia on 9-5-2016.
  */
 public class TodoManager {
-    private ArrayList<TodoList> TodoLists;
-
-    // instance
-    private static TodoManager OurInstance = new TodoManager();
-
-    // andere fields bv) uniek string
-
+    private static TodoManager myInstance;
+    private ArrayList<TodoList> toDoLists;
+    private TodoItem toDoItem;
 
     // constructor
-    private TodoManager(){
-       ;
+    protected TodoManager(){
+        toDoLists = new ArrayList<>();
     }
 
     // methods
-    public static TodoManager getOurInstance({
-        return OurInstance();
+    public static TodoManager getInstance(){
+        if (myInstance == null){
+            myInstance = new TodoManager();
+        }
+        return myInstance;
     }
 
-    public static readTodos () {
-        return TodoItem;
+    public TodoItem readTodos () {
+        return toDoItem;
     }
 
-    public static writeTodos(new TodoItem){
-        return TodoItem;
+    public void setObject (TodoManager myInstance){
+        this.myInstance = myInstance;
+    }
+
+    public ArrayList<TodoList> getObject() {
+        return toDoLists;
+    }
+
+    public void writeToDos(String newItem, TodoList currentList){
+        TodoItem newToDoItem = new TodoItem();
+        newToDoItem.setToDoTitle(newItem,newToDoItem);
+        currentList.addItem(newToDoItem);
+    }
+
+    public void addList(String newList){
+        TodoList newTodoList = new TodoList();
+        newTodoList.setListTitle(newList, newTodoList);
+        toDoLists.add(newTodoList);
+    }
+
+    public TodoList readLists(String searchTitle){
+        int size = toDoLists.size();
+        for (int i = 0; i < size; i++ ) {
+            if (TodoList.getListTitle(toDoLists.get(i)) == searchTitle) {
+                TodoList correctList = toDoLists.get(i);
+                return correctList;
+            }
+        }
+        return null;
     }
 }

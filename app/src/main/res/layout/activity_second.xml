@@ -20,7 +20,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/todoItemsLV"
-        android:layout_below="@+id/infoToDoItemsTV">
+        android:layout_below="@+id/infoToDoItemsTV"
+        android:onClick="statusToDo">
     </ListView>
 
     <EditText
@@ -28,8 +29,7 @@
         android:layout_height="wrap_content"
         android:hint="New To-Do item"
         android:layout_alignParentBottom="true"
-        android:id="@+id/newToDoItemET"
-        android:onClick=""/>
+        android:id="@+id/newToDoItemET" />
 
     <Button
         android:layout_width="wrap_content"
