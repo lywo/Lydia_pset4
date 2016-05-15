@@ -1,10 +1,18 @@
 package com.example.lydia.lydia_pset4;
 
+/*
+Lydia Wolfs
+First Activity of an app that stories multiple TO DO lists with mulitple TO DO items
+Connected to listview with all TO DO lists, lists can be added via a button. Controlled by addNewList Function.
+onItemClicked function selects the correct list and gives string to next activity via intent.
+ */
+
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -25,13 +33,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        myToDoManager= TodoManager.getInstance();
 
-        final ListView todoListsLV = (ListView) findViewById(R.id.todoListsLV);
+        myToDoManager.getInstance().setObject(new TodoManager());
+        toDoLists = myToDoManager.getInstance().getObject();
+//        myToDoManager = new TodoManager();
+//        myToDoManager = TodoManager.getInstance();
+        // Object object = SingletonObject.getInstance().getObject();
+
+        toDoListsAdapter = new ArrayListAdapter(this, toDoLists);
+        final ListView toDoListsLV = (ListView) findViewById(R.id.todoListsLV);
         EditText newToDoListET = (EditText) findViewById(R.id.newToDoListET);
         final Button addToDoListBT = (Button) findViewById(R.id.addListBT);
         addToDoListBT.setEnabled(false);
-        todoListsLV.setAdapter(toDoListsAdapter);
+        toDoListsLV.setAdapter(toDoListsAdapter);
 
         /*
         Do not allow user to send in an empty field
@@ -44,9 +58,10 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(s.toString().trim().length()==0){
+                if (s.toString().trim().length() == 0){
                     addToDoListBT.setEnabled(false);
-                } else {
+                }
+                else{
                     addToDoListBT.setEnabled(true);
                 }
             }
@@ -58,43 +73,47 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // update toDoItems String [] with current to do items / load db
-        toDoLists = myDB.readLists();
+        // toDoLists = myDB.readLists();
 
         // set Adapter
-        todoListsLV.setAdapter(toDoListsAdapter);
+        toDoListsLV.setAdapter(toDoListsAdapter);
         toDoListsAdapter.notifyDataSetChanged();
 
-        assert todoListsLV != null;
-        todoListsLV.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        toDoListsLV.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 // Get String of item for Toast
-                String ToDoList = (String) todoListsLV.getItemAtPosition(position).toString();
+                String ToDoList = toDoListsLV.getItemAtPosition(position).toString();
 
                 // Toast to let user know which item was deleted
                 Toast.makeText(getApplicationContext(), "You deleted: " + ToDoList, Toast.LENGTH_SHORT).show();
+                TodoList oldToDoList = (TodoList) toDoListsLV.getItemAtPosition(position);
 
-                TodoList oldToDoList = (TodoList) todoListsLV.getItemAtPosition(position);
-                myDB.deleteList(oldToDoList);
+                // Delete correct toDoList
+                String searchTitle = oldToDoList.getListTitle(oldToDoList);
+                int size = toDoLists.size();
+                for (int i = 0; i < size; i++) {
+                    if (searchTitle == TodoList.title) {
+                        toDoLists.remove(oldToDoList);
+                    }
+                }
 
                 // Update ListView
-                toDoLists.clear();
-                toDoLists.addAll(myDB.readLists());
                 toDoListsAdapter.notifyDataSetChanged();
                 return true;
             }
         });
-
     }
 
     /*
     Select the to do List where on clicked by user
      */
-    Intent ToDoListActivity = new Intent(this, SecondActivity.class);
     public void onItemClicked (View view, int position, long id){
+        Intent ToDoListActivity = new Intent(MainActivity.this, SecondActivity.class);
         ListView todoListsLV = (ListView) findViewById(R.id.todoListsLV);
-        String ToDoList = (String) todoListsLV.getItemAtPosition(position).toString();
+        assert todoListsLV != null;
+        String ToDoList = todoListsLV.getItemAtPosition(position).toString();
         Bundle giveTrough = new Bundle();
         giveTrough.putString("chosen ToDoList", ToDoList);
         ToDoListActivity.putExtras(giveTrough);
@@ -104,19 +123,20 @@ public class MainActivity extends AppCompatActivity {
     /*
     Adding new List to ListView and TodoManager
      */
-    public void addNewList(){
-        ListView toDoListsLV = (ListView) findViewById(R.id.todoListsLV);
+    protected void addNewList(View view){
+        TodoManager.getInstance().setObject(myToDoManager);
+        toDoLists = myToDoManager.getInstance().getObject();
         EditText addNewToDoList = (EditText) findViewById(R.id.newToDoListET);
         String newToDoList = addNewToDoList.getText().toString();
         myToDoManager.addList(newToDoList);
-
-        assert toDoListsLV != null;
+        addNewToDoList.setText("");
         toDoListsAdapter.notifyDataSetChanged();
-        toDoListsLV.setAdapter(toDoListsAdapter);
     }
 
     @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {  }
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
