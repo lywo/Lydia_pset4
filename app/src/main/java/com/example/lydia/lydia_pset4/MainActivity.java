@@ -127,8 +127,8 @@ public class MainActivity extends AppCompatActivity {
     Adding new List to ListView and TodoManager
      */
     protected void addNewList(View view){
-        TodoManager.getInstance().setObject(myToDoManager);
-        toDoLists = myToDoManager.getInstance().getObject();
+        myToDoManager = TodoManager.getInstance();
+        toDoLists = myToDoManager.getObject();
         EditText addNewToDoList = (EditText) findViewById(R.id.newToDoListET);
         String newToDoList = addNewToDoList.getText().toString();
         myToDoManager.addList(newToDoList);

@@ -26,8 +26,8 @@ public class SecondActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_second);
-        TodoManager.getInstance().setObject(myToDoManager);
-        toDoLists = myToDoManager.getInstance().getObject();
+        myToDoManager = TodoManager.getInstance();
+        toDoLists = myToDoManager.getObject();
         String selectedList = getIntent().getExtras().getString("chosen ToDoList");
         int size  = toDoLists.size();
         ListView toDoItemsLV  = (ListView) findViewById(R.id.todoItemsLV);
