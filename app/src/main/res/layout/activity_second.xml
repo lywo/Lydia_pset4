@@ -21,7 +21,9 @@
         android:layout_height="match_parent"
         android:id="@+id/todoItemsLV"
         android:layout_below="@+id/infoToDoItemsTV"
-        android:onClick="statusToDo">
+        android:layout_above="@+id/newToDoItemET"
+        android:transcriptMode="alwaysScroll"
+        android:stackFromBottom="false">
     </ListView>
 
     <EditText

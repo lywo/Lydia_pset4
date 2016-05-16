@@ -47,22 +47,22 @@ public class TodoManager {
 
     public void writeToDos(String newItem, TodoList currentList){
         TodoItem newToDoItem = new TodoItem();
-        newToDoItem.setToDoTitle(newItem,newToDoItem);
+        newToDoItem.setToDoTitle(newItem);
+        newToDoItem.setToDoBool(false);
         currentList.addItem(newToDoItem);
     }
 
     public void addList(String newList){
         TodoList newTodoList = new TodoList();
-        newTodoList.setListTitle(newList, newTodoList);
+        newTodoList.setListTitle(newList);
         toDoLists.add(newTodoList);
     }
 
     public TodoList readLists(String searchTitle){
         int size = toDoLists.size();
         for (int i = 0; i < size; i++ ) {
-            if (TodoList.getListTitle(toDoLists.get(i)) == searchTitle) {
-                TodoList correctList = toDoLists.get(i);
-                return correctList;
+            if ((toDoLists.get(i).getListTitle()).equals(searchTitle)){
+                return toDoLists.get(i);
             }
         }
         return null;

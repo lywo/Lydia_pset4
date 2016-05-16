@@ -12,25 +12,47 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     ArrayList<TodoList> toDoLists = new ArrayList();
-    ArrayListAdapter toDoListsAdapter;
+    ToDoListAdapter toDoListsAdapter;
     TodoManager myToDoManager;
-    final DBHelper myDB = new DBHelper(this);
+    // final DBHelper myDB = new DBHelper(this);
+
+//    @Override
+//    protected void onStart() {
+//        super.onStart();
+//
+//        TodoManager.init(this);
+//        myToDoManager = TodoManager.getInstance();
+//        toDoLists = myToDoManager.getObject();
+//        toDoLists = myDB.loadAll();
+//    }
+//
+//    @Override
+//    protected void onStop() {
+//        super.onStop();
+//        myDB.saveAll();
+//    }
+//
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        myDB.saveAll();
+//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //deleteDatabase("todo.db");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         TodoManager.init(this);
@@ -43,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
 //        myToDoManager = TodoManager.getInstance();
         // Object object = SingletonObject.getInstance().getObject();
 
-        toDoListsAdapter = new ArrayListAdapter(this, toDoLists);
+        toDoListsAdapter = new ToDoListAdapter(this, toDoLists);
         final ListView toDoListsLV = (ListView) findViewById(R.id.todoListsLV);
         EditText newToDoListET = (EditText) findViewById(R.id.newToDoListET);
         final Button addToDoListBT = (Button) findViewById(R.id.addListBT);
@@ -94,10 +116,10 @@ public class MainActivity extends AppCompatActivity {
                 TodoList oldToDoList = (TodoList) toDoListsLV.getItemAtPosition(position);
 
                 // Delete correct toDoList
-                String searchTitle = oldToDoList.getListTitle(oldToDoList);
+                String searchTitle = oldToDoList.getListTitle();
                 int size = toDoLists.size();
                 for (int i = 0; i < size; i++) {
-                    if (searchTitle == TodoList.title) {
+                    if (searchTitle == toDoLists.get(i).title) {
                         toDoLists.remove(oldToDoList);
                     }
                 }
@@ -107,28 +129,55 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+
+        toDoListsLV.setOnItemClickListener(new ListView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent ToDoListActivity = new Intent(MainActivity.this, SecondActivity.class);
+                ListView todoListsLV = (ListView) findViewById(R.id.todoListsLV);
+                assert todoListsLV != null;
+                TextView chosenItem = (TextView) findViewById(R.id.toDoListTV) ;
+                String ToDoList= chosenItem.getText().toString();
+                Bundle giveThrough = new Bundle();
+                giveThrough.putString("chosen ToDoList", ToDoList);
+                ToDoListActivity.putExtras(giveThrough);
+                startActivity(ToDoListActivity);
+            }
+
+//            @Override
+//            public void onClick(View view) {
+//                Intent ToDoListActivity = new Intent(MainActivity.this, SecondActivity.class);
+//                ListView todoListsLV = (ListView) findViewById(R.id.todoListsLV);
+//                assert todoListsLV != null;
+//                String ToDoList = view.toString();
+//                Bundle giveTrough = new Bundle();
+//                giveTrough.putString("chosen ToDoList", ToDoList);
+//                ToDoListActivity.putExtras(giveTrough);
+//                startActivity(ToDoListActivity);
+//            }
+        });
     }
 
     /*
     Select the to do List where on clicked by user
      */
-    public void onItemClicked (View view, int position, long id){
-        Intent ToDoListActivity = new Intent(MainActivity.this, SecondActivity.class);
-        ListView todoListsLV = (ListView) findViewById(R.id.todoListsLV);
-        assert todoListsLV != null;
-        String ToDoList = todoListsLV.getItemAtPosition(position).toString();
-        Bundle giveTrough = new Bundle();
-        giveTrough.putString("chosen ToDoList", ToDoList);
-        ToDoListActivity.putExtras(giveTrough);
-        startActivity(ToDoListActivity);
-    }
+//    public void onItemClicked (View view){
+//        Intent ToDoListActivity = new Intent(MainActivity.this, SecondActivity.class);
+//        ListView todoListsLV = (ListView) findViewById(R.id.todoListsLV);
+//        assert todoListsLV != null;
+//        String ToDoList = view.toString();
+//        Bundle giveTrough = new Bundle();
+//        giveTrough.putString("chosen ToDoList", ToDoList);
+//        ToDoListActivity.putExtras(giveTrough);
+//        startActivity(ToDoListActivity);
+//    }
 
     /*
     Adding new List to ListView and TodoManager
      */
-    protected void addNewList(View view){
-        TodoManager.getInstance().setObject(myToDoManager);
-        toDoLists = myToDoManager.getInstance().getObject();
+    public void addNewList(View view){
+        myToDoManager = TodoManager.getInstance();
+        toDoLists = myToDoManager.getObject();
         EditText addNewToDoList = (EditText) findViewById(R.id.newToDoListET);
         String newToDoList = addNewToDoList.getText().toString();
         myToDoManager.addList(newToDoList);
@@ -145,4 +194,5 @@ public class MainActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
     }
+
 }

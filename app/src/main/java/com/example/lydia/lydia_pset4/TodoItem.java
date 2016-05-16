@@ -4,27 +4,26 @@ package com.example.lydia.lydia_pset4;
  * Created by Lydia on 9-5-2016.
  */
 public class TodoItem {
-    protected static String title;
+    protected String title;
     private Boolean completed;
     private int _id;
 
-    public static String getToDoTitle(TodoItem currentToDoItem){
-        String ToDoTitle = currentToDoItem.title;
+    public String getToDoTitle(){
+        String ToDoTitle = title;
         return ToDoTitle;
     }
 
-    public static void setToDoTitle(String newItemTitle, TodoItem currentToDo){
-        currentToDo.title= newItemTitle;
+    public void setToDoTitle(String newItemTitle){
+        title= newItemTitle;
     }
 
     // getter bool
-    public static Boolean getToDoBool (TodoItem currentToDo){
-        return currentToDo.completed;
+    public Boolean getToDoBool (){
+        return completed;
     }
 
     // setter bool
-    public static void setToDoBool (TodoItem currentToDo, Boolean status){
-        currentToDo.completed = status;
+    public void setToDoBool (Boolean status){completed = status;
     }
 
 }

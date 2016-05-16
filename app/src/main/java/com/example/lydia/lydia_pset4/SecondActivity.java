@@ -18,7 +18,7 @@ import java.util.List;
 
 public class SecondActivity extends AppCompatActivity {
     ArrayList<TodoList> toDoLists;
-    ToDoItemAdapter toDoListsAdapter;
+    public ToDoItemAdapter toDoItemsAdapter;
     TodoManager myToDoManager;
     final DBHelper myDB = new DBHelper(this);
 
@@ -26,30 +26,33 @@ public class SecondActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_second);
-        TodoManager.getInstance().setObject(myToDoManager);
-        toDoLists = myToDoManager.getInstance().getObject();
+        myToDoManager = TodoManager.getInstance();
+        toDoLists = myToDoManager.getObject();
         String selectedList = getIntent().getExtras().getString("chosen ToDoList");
         int size  = toDoLists.size();
-        ListView toDoItemsLV  = (ListView) findViewById(R.id.todoItemsLV);
+        final ListView toDoItemsLV  = (ListView) findViewById(R.id.todoItemsLV);
+        TodoList searchList = null;
 
         for (int i = 0; i < size; i++ ){
-            if (TodoList.title == selectedList) {
+            String title = toDoLists.get(i).title;
+            if (title.equals(selectedList)) {
                 // Fill ListView with this selected list
-                assert toDoItemsLV != null;
-                toDoItemsLV.setAdapter(toDoListsAdapter);
+                searchList = toDoLists.get(i);
+                break;
             }
         }
-
-        final ListView todoItemsLV = (ListView) findViewById(R.id.todoItemsLV);
+        final TodoList chosenList = searchList;
+        assert toDoItemsLV != null;
+        assert chosenList != null;
+        toDoItemsAdapter = new ToDoItemAdapter(this, chosenList.getItems());
+        toDoItemsLV.setAdapter(toDoItemsAdapter);
         EditText newToDoItemET = (EditText) findViewById(R.id.newToDoItemET);
         final Button addToDoItemBT = (Button) findViewById(R.id.addToDoItemBT);
-        addToDoItemBT.setEnabled(false);
-        todoItemsLV.setAdapter(toDoListsAdapter);
-
 
         /*
         Do not allow user to send in an empty field
          */
+        addToDoItemBT.setEnabled(false);
         newToDoItemET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -75,28 +78,26 @@ public class SecondActivity extends AppCompatActivity {
         // toDoLists = myDB.readLists();
 
         // set Adapter
-        todoItemsLV.setAdapter(toDoListsAdapter);
-        toDoListsAdapter.notifyDataSetChanged();
+        toDoItemsLV.setAdapter(toDoItemsAdapter);
+        toDoItemsAdapter.notifyDataSetChanged();
 
-
-        assert todoItemsLV != null;
-        todoItemsLV.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        toDoItemsLV.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                // Delete row of item at current position in sql
-                String ToDoItem = (String) todoItemsLV.getItemAtPosition(position).toString();
+                // find selected item and delete from array list
+                TodoItem oldToDoItem = (TodoItem) toDoItemsLV.getItemAtPosition(position);
+                String searchTitle = oldToDoItem.getToDoTitle();
 
                 // Toast to let user know which item was deleted
-                Toast.makeText(getApplicationContext(), "You deleted: " + ToDoItem, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "You deleted: " + searchTitle, Toast.LENGTH_SHORT).show();
 
-                // find selected item and delete from array list
-                TodoItem oldToDoItem = (TodoItem) todoItemsLV.getItemAtPosition(position);
-                String searchTitle = oldToDoItem.getToDoTitle(oldToDoItem);
-                int size = toDoLists.size();
+                assert chosenList!= null;
+                int size = chosenList.size();
                 for (int i = 0; i < size ; i ++ ){
-                    if (searchTitle == TodoItem.title){
-                        toDoLists.remove(oldToDoItem);
+                    if (searchTitle.equals(chosenList.getItem(i).title)){
+                        chosenList.removeItem(oldToDoItem);
+                        break;
                     }
                 }
 //
@@ -105,23 +106,18 @@ public class SecondActivity extends AppCompatActivity {
 //                // Update ListView
 //                toDoLists.clear();
 //                toDoLists.addAll(myDB.readLists());
-//                toDoListsAdapter.notifyDataSetChanged();
+
+                toDoItemsAdapter.notifyDataSetChanged();
                 return true;
             }
         });
 
-        todoItemsLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        toDoItemsLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                TodoItem currentToDoItem = (TodoItem) todoItemsLV.getItemAtPosition(position);
-                if (currentToDoItem.getToDoBool(currentToDoItem)){
-                    view.setBackgroundColor(Color.GREEN);
-                    currentToDoItem.setToDoBool(currentToDoItem, false);
-                }
-                else {
-                    view.setBackgroundColor(Color.TRANSPARENT);
-                    currentToDoItem.setToDoBool(currentToDoItem, true);
-                }
+                TodoItem currentToDoItem = (TodoItem) toDoItemsLV.getItemAtPosition(position);
+                currentToDoItem.setToDoBool (!currentToDoItem.getToDoBool());
+                toDoItemsAdapter.notifyDataSetChanged();
             }
         });
     }
@@ -129,17 +125,16 @@ public class SecondActivity extends AppCompatActivity {
     /*
     Adding new Item to ListView and TodoManager
      */
-    public void addToDoItem(){
-        ListView toDoItemLV = (ListView) findViewById(R.id.todoItemsLV);
+    public void addToDoItem(View view) {
+        myToDoManager = TodoManager.getInstance();
         EditText addNewToDoItem = (EditText) findViewById(R.id.newToDoItemET);
+        assert addNewToDoItem != null;
         String newToDoTitle = addNewToDoItem.getText().toString();
         String selectedList = getIntent().getExtras().getString("chosen ToDoList");
         TodoList selectedToDoList = myToDoManager.readLists(selectedList);
         myToDoManager.writeToDos(newToDoTitle, selectedToDoList);
-
-        assert toDoItemLV != null;
-        toDoListsAdapter.notifyDataSetChanged();
-        toDoItemLV.setAdapter(toDoListsAdapter);
+        addNewToDoItem.setText("");
+        toDoItemsAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -149,4 +144,6 @@ public class SecondActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
     }
+
+
 }

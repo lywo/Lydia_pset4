@@ -6,19 +6,41 @@ import java.util.ArrayList;
  * Created by Lydia on 9-5-2016.
  */
 public class TodoList {
-    static String title;
+    protected String title;
     private ArrayList<TodoItem> toDoItems;
 
-    public static String getListTitle(TodoList currentToDoList){
-        String toDoTitle = currentToDoList.title;
+    // constructor
+    protected TodoList(){
+        toDoItems = new ArrayList<>();
+    }
+
+    public String getListTitle(){
+        String toDoTitle = title;
         return toDoTitle;
     }
 
-    public static void setListTitle(String newItemTitle, TodoList  newToDoList){
-        newToDoList.title = newItemTitle;
+    public void setListTitle(String newItemTitle){
+        title = newItemTitle;
     }
 
     public void addItem(TodoItem newToDoItem){
         toDoItems.add(newToDoItem);
     }
+
+    public int size (){
+        return toDoItems.size();
+    }
+
+    public TodoItem getItem (int i){
+        return toDoItems.get(i);
+    }
+
+    public void removeItem (TodoItem itemToRemove){
+        toDoItems.remove(itemToRemove);
+    }
+
+    public ArrayList<TodoItem> getItems (){
+        return toDoItems;
+    }
+
 }
